@@ -5,20 +5,25 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
-  const char *alphabet = "абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
+  setlocale(LC_ALL, "ru_RU.utf8");
+  srand(time(NULL));
+
+  const wchar_t *alphabet = L"абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
+  const int lettersCount = wcslen(alphabet);
+  wcout << L"Салам" << endl;
 
   int symbCount = 0;
-  cout << "Enter symbols count: ";
-  cin >> symbCount;
+  wprintf(L"Enter symobols count: ");
+  wscanf(L"%d", &symbCount);
 
-  srand(time(NULL));
-  cout << "random number 1: " << rand() % strlen(alphabet) << endl;
-  cout << "random number 2: " << rand() % strlen(alphabet) << endl;
-
-  for (int i = 1; i < 6; i++)
+  wchar_t *pass = new wchar_t(symbCount);
+  for (int i = 0; i < symbCount; i++)
   {
-    const char *what = "asd";
+    const int letterNumber = rand() % lettersCount;
+    wprintf(L"Next number: %d\n", letterNumber);
+    pass[i] = alphabet[letterNumber];
   }
+  wprintf(L"Generated password: %ls\n", pass);
 
   return 0;
 }
