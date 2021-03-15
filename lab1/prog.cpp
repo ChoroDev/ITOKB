@@ -14,7 +14,7 @@ int main(int argc, char **argv)
   wscanf(L"%d", &symbCount);
 
   // а
-  // -
+  // - 1
   wchar_t *pass = new wchar_t[symbCount + 1];
   for (int i = 0; i < symbCount; i++)
   {
@@ -25,7 +25,7 @@ int main(int argc, char **argv)
   pass[symbCount] = L'\0';
   wprintf(L"Generated password: %ls\n", pass);
 
-  // -
+  // - 2
   const int countOfTries = 66000;
   int *lettersDistribution = new int[lettersCount];
   for (int i = 0; i < countOfTries; i++)
@@ -35,7 +35,11 @@ int main(int argc, char **argv)
   }
   for (int i = 0; i < lettersCount; i++)
   {
-    wprintf(L"%lc: %d\n", alphabet[i], lettersDistribution[i]);
+    wprintf(L"%lс\n", alphabet[i]);
+  }
+  for (int i = 0; i < lettersCount; i++)
+  {
+    wprintf(L"%d\n", lettersDistribution[i]);
   }
 
   delete pass;
