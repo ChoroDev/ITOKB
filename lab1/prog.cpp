@@ -5,7 +5,7 @@ const int createPassword(const wchar_t *alphabet, const int lettersCount)
 {
   int symbCount;
 
-  wprintf(L"Enter symbols cout: ");
+  wprintf(L"Enter symbols count: ");
   wscanf(L"%d", &symbCount);
   wchar_t *pass = new wchar_t[symbCount + 1];
   for (int i = 0; i < symbCount; i++)
@@ -23,10 +23,9 @@ const int createPassword(const wchar_t *alphabet, const int lettersCount)
 
 const int createDistribution(const wchar_t *alphabet, const int lettersCount)
 {
-  const int countOfTries = 660000;
   int *lettersDistribution = new int[lettersCount];
 
-  for (int i = 0; i < countOfTries; i++)
+  for (int i = 0; i < lettersCount * 10000; i++)
   {
     const int letterNumber = rand() % lettersCount;
     lettersDistribution[letterNumber]++;
@@ -42,48 +41,84 @@ const int createDistribution(const wchar_t *alphabet, const int lettersCount)
 
 const int calcAvgGuessTime(const wchar_t *alphabet, const int lettersCount)
 {
-  // step = 50000 - starting point
-  // 10000000, 50000000, 100000000, 250000000, 500000000
-  const long symbolCounts[5] = {10000000, 50000000, 100000000, 250000000, 500000000};
   const int countOfTries = 5;
+  const int symbolCounts[countOfTries] = {2, 3, 4, 5, 6};
 
-  for (int symbCountNumber = 0; symbCountNumber < 5; symbCountNumber++)
+  for (int symbCountNumber = 0; symbCountNumber < countOfTries; symbCountNumber++)
   {
     const long symbCount = symbolCounts[symbCountNumber];
     wprintf(L"Symbols count: %ld\n", symbCount);
     for (int tryNumb = 1; tryNumb < countOfTries + 1; tryNumb++)
     {
+      // Password generation here
       wchar_t *pass = new wchar_t[symbCount + 1];
       pass[symbCount] = L'\0';
       for (int i = 0; i < symbCount; i++)
       {
         const int letterNumber = rand() % lettersCount;
-        // wprintf(L"Next number: %d\n", letterNumber);
         pass[i] = alphabet[letterNumber];
       }
-      // wprintf(L"Password: %ls\n", pass);
+      wprintf(L"Password: %ls. ", pass);
 
+      // Brute force
       time_t start = time(0);
 
-      for (long symbNumb = 0; symbNumb < symbCount; symbNumb++)
+      int *bfSymbNumbers = new int[symbCount];
+      for (int i = 0; i < symbCount; i++)
       {
-        for (int i = 0; i < lettersCount; i++)
+        bfSymbNumbers[i] = 0;
+      }
+
+      int bfSymbNumbersSum = 0;
+      bool increaseNext = false;
+      bool isPassBruteForced = false;
+      do
+      {
+        for (int i = 0; i < symbCount; i++)
         {
-          if (alphabet[i] == pass[symbNumb])
+          if (increaseNext)
           {
-            break;
+            bfSymbNumbers[i]++;
+          }
+          if (bfSymbNumbers[i] > lettersCount - 1)
+          {
+            bfSymbNumbers[i] = 0;
+            increaseNext = true;
+          }
+          else if (i == 0)
+          {
+            bfSymbNumbers[i]++;
+          }
+          else
+          {
+            increaseNext = false;
           }
         }
-      }
+        int similarCount = 0;
+        for (int i = 0; i < symbCount; i++)
+        {
+          if (alphabet[bfSymbNumbers[i]] == pass[i])
+          {
+            similarCount++;
+          }
+        }
+        if (similarCount == symbCount)
+        {
+          break;
+        }
+        bfSymbNumbersSum++;
+      } while (true);
 
       time_t end = time(0);
 
+      // Time calculation
       const long int startInt = static_cast<long int>(start);
       const long int endInt = static_cast<long int>(end);
       const long int elapsed = endInt - startInt;
-      wprintf(L"Try %ld. Guessing time: %lds\n", tryNumb, elapsed);
+      wprintf(L"Guessing time: %lds\n", elapsed);
 
       delete pass;
+      delete bfSymbNumbers;
     }
   }
 
