@@ -136,11 +136,11 @@ int main(int argc, char **argv)
   // а
   // - 1
 
-  // createPassword(alphabet, lettersCount);
+  createPassword(alphabet, lettersCount);
 
   // - 2
 
-  // createDistribution(alphabet, lettersCount);
+  createDistribution(alphabet, lettersCount);
 
   // - 3;
 
