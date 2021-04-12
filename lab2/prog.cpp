@@ -1,19 +1,27 @@
 #include <iostream>
 #include <string>
 #include <cmath>
+#include <limits.h>
 
 using namespace std;
 
 char **createEncryptionTable(const int rowsCount, const int colsCount, string strToEncryptClean)
 {
   char **encryptionTable = new char *[rowsCount];
-  cout << "Encryption table:" << endl;
   for (int row = 0; row < rowsCount; row++)
   {
     encryptionTable[row] = new char[colsCount];
     for (int col = 0; col < colsCount; col++)
     {
-      encryptionTable[row][col] = strToEncryptClean[row * 5 + col];
+      encryptionTable[row][col] = strToEncryptClean[row * colsCount + col];
+    }
+  }
+
+  cout << "Encryption table:" << endl;
+  for (int row = 0; row < rowsCount; row++)
+  {
+    for (int col = 0; col < colsCount; col++)
+    {
       cout << encryptionTable[row][col] << " ";
     }
     cout << endl;
@@ -56,9 +64,9 @@ char **createDecryptionTable(const int rowsCount, const int colsCount, string st
   {
     for (int row = 0; row < rowsCount; row++)
     {
-      if (row * 5 + col < strToDecrypt.length())
+      if (row * colsCount + col < strToDecrypt.length())
       {
-        decryptionTable[row][col] = strToDecrypt[row * 5 + col];
+        decryptionTable[row][col] = strToDecrypt[row * colsCount + col];
       }
     }
   }
@@ -93,6 +101,21 @@ string decrypt(const int colsCount, string strToDecrypt)
   return decrypted;
 }
 
+// const void bruteForce(const string sourceStr)
+// {
+//   const string encrypted = encrypt(5, sourceStr);
+//   for (int i = 2; i < 11; i++)
+//   {
+//     const string decrypted = decrypt(i, encrypted);
+//     cout << "Decrypted: " << decrypted << endl;
+//     if (sourceStr.compare(decrypted) == 0)
+//     {
+//       return;
+//     }
+//   }
+//   return;
+// }
+
 int main(int argc, char **argv)
 {
   setlocale(LC_ALL, "");
@@ -119,10 +142,12 @@ int main(int argc, char **argv)
   const string encrypted = encrypt(colsCount, strToEncryptClean);
   cout << "Encrypted: " << encrypted << endl;
 
+  const string decrypted = decrypt(colsCount, encrypted);
+  cout << "Decrypted: " << decrypted << endl;
+
   // - 2
 
-  const string decrypted = decrypt(colsCount, strToEncryptClean);
-  cout << "Decrypted: " << decrypted << endl;
+  // bruteForce(strToEncryptClean);
 
   return 0;
 }
