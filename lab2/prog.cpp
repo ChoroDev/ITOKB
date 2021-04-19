@@ -55,18 +55,35 @@ string encrypt(const int colsCount, string strToEncrypt)
 
 char **createDecryptionTable(const int rowsCount, const int colsCount, string strToDecrypt)
 {
+  const int strLength = strToDecrypt.length();
+  const int tableSize = rowsCount * colsCount;
+  int bigColsCount = 0;
+  int bigRowsCount = rowsCount;
+  if (tableSize > strLength)
+  {
+    bigColsCount = strLength + colsCount - tableSize;
+    bigRowsCount--;
+  }
+
   char **decryptionTable = new char *[rowsCount];
   for (int row = 0; row < rowsCount; row++)
   {
     decryptionTable[row] = new char[colsCount];
   }
+
+  int i = 0;
   for (int col = colsCount - 1; col >= 0; col--)
   {
     for (int row = 0; row < rowsCount; row++)
     {
-      if (row * colsCount + col < strToDecrypt.length())
+      if (bigColsCount > 0 && col >= bigColsCount && row == bigRowsCount)
       {
-        decryptionTable[row][col] = strToDecrypt[row * colsCount + col];
+        break;
+      }
+      else
+      {
+        decryptionTable[row][col] = strToDecrypt[i];
+        i++;
       }
     }
   }
@@ -86,13 +103,14 @@ char **createDecryptionTable(const int rowsCount, const int colsCount, string st
 string decrypt(const int colsCount, string strToDecrypt)
 {
   const int rowsCount = ceil((double)strToDecrypt.length() / colsCount);
+
   char **decryptionTable = createDecryptionTable(rowsCount, colsCount, strToDecrypt);
   string decrypted = "";
   for (int row = 0; row < rowsCount; row++)
   {
     for (int col = 0; col < colsCount; col++)
     {
-      if (decryptionTable[row][col] != ' ')
+      if (decryptionTable[row][col] != ' ' && decryptionTable[row][col] != '\0')
       {
         decrypted += decryptionTable[row][col];
       }
@@ -101,27 +119,31 @@ string decrypt(const int colsCount, string strToDecrypt)
   return decrypted;
 }
 
-// const void bruteForce(const string sourceStr)
-// {
-//   const string encrypted = encrypt(5, sourceStr);
-//   for (int i = 2; i < 11; i++)
-//   {
-//     const string decrypted = decrypt(i, encrypted);
-//     cout << "Decrypted: " << decrypted << endl;
-//     if (sourceStr.compare(decrypted) == 0)
-//     {
-//       return;
-//     }
-//   }
-//   return;
-// }
+const void bruteForce(const string sourceStr, const int colsCount)
+{
+  const string encrypted = encrypt(colsCount, sourceStr);
+  cout << "Encrypted: " << encrypted << endl;
+  for (int i = 2; i < colsCount + 10; i++)
+  {
+    string decrypted = decrypt(i, encrypted);
+    cout << "Columns count: " << i << endl;
+    cout << "Decrypted: " << decrypted << endl;
+
+    if (sourceStr.compare(decrypted) == 0)
+    {
+      cout << "Decrypted!" << endl;
+      return;
+    }
+  }
+  return;
+}
 
 int main(int argc, char **argv)
 {
   setlocale(LC_ALL, "");
   srand(time(NULL));
 
-  const int colsCount = 5;
+  const int colsCount = 100;
 
   string strToEncrypt;
   cout << "Enter string (only latin):" << endl;
@@ -147,7 +169,7 @@ int main(int argc, char **argv)
 
   // - 2
 
-  // bruteForce(strToEncryptClean);
+  bruteForce(strToEncryptClean, colsCount);
 
   return 0;
 }
