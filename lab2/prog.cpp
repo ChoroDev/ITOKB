@@ -171,5 +171,20 @@ int main(int argc, char **argv)
 
   bruteForce(strToEncryptClean, colsCount);
 
+  // - 3
+
+  const int colsCount1 = 5;
+  const int colsCount2 = 3;
+
+  const string encryptedOnce = encrypt(colsCount1, strToEncryptClean);
+  cout << "Encrypted once: " << encryptedOnce << endl;
+  const string encryptedTwice = encrypt(colsCount2, encryptedOnce);
+  cout << "Encrypted twice: " << encryptedTwice << endl;
+
+  const string decryptedOnce = decrypt(colsCount2, encryptedTwice);
+  cout << "Decrypted once: " << decryptedOnce << endl;
+  const string decryptedTwice = decrypt(colsCount1, decryptedOnce);
+  cout << "Decrypted twice: " << decryptedTwice << endl;
+
   return 0;
 }
