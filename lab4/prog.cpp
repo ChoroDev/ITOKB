@@ -33,22 +33,18 @@ string getNumberBits(int number)
 
 const int getModulo(int g, int power, int P)
 {
-  string powerBits = getNumberBits(power);
-  string powerBitsRev = reverseBits(powerBits);
-  unsigned int modulo = (g * g) % P;
-  for (int i = powerBitsRev.length() - 1; i >= 0; i--)
+  int modulo = 1;
+  while (power)
   {
-    if (powerBitsRev.at(i) == '1')
+    if (power & 1)
     {
-      modulo *= g;
-    }
-    if (i - 1 != -1)
-    {
-      modulo = (modulo * modulo) % P;
+      modulo = (int)(modulo * 1ll * g % P);
+      power--;
     }
     else
     {
-      modulo %= P;
+      g = (int)(g * 1ll * g % P);
+      power >>= 1;
     }
   }
   return modulo;
@@ -120,7 +116,8 @@ int main(int argc, char **argv)
   cout << "Second secret (B): " << B << endl;
   const unsigned int Ab = getModulo(A, b, P);
   const unsigned int Ba = getModulo(B, a, P);
-  cout << "Common secret: " << Ab << endl;
+  cout << "Common secret (Ab): " << Ab << endl;
+  cout << "Common secret (Ba): " << Ba << endl;
 
   return 0;
 }
