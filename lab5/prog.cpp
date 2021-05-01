@@ -221,6 +221,30 @@ string divideLargeNumbers(string a, string b)
   return res;
 }
 
+string sumLargeNumbers(string a, string b)
+{
+  while (a.length() != b.length())
+  {
+    if (a.length() > b.length())
+    {
+      b = "0" + b;
+    }
+    else
+    {
+      a = "0" + a;
+    }
+  }
+  int finalLength = max(a.length(), b.length());
+  string res = "";
+  for (int n = 0, i = finalLength - 1; i >= 0; i--, n /= 10)
+  {
+    n += a[i] - '0' + b[i] - '0';
+    res = to_string(n % 10) + res;
+  }
+  cout << "sum: " << res << endl;
+  return res;
+}
+
 int main(int argc, char **argv)
 {
   setlocale(LC_ALL, "");
@@ -262,7 +286,8 @@ int main(int argc, char **argv)
   const string fi = multiplyLargeNumbers(pMinus1, qMinus1);
   cout << "fi: " << fi << endl;
 
-  cout << divideLargeNumbers(qMinus1, pMinus1) << endl;
+  cout << "(q - 1)/(p - 1): " << divideLargeNumbers(qMinus1, pMinus1) << endl;
+  sumLargeNumbers(p, q);
 
   return 0;
 }
