@@ -5,39 +5,28 @@
 
 using namespace std;
 
-const int getModulo(int g, int power, int P)
+string removeLeadingZeros(string str)
 {
-  int modulo = 1;
-  while (power)
+  while (str.size() > 1 && str[0] == '0')
   {
-    if (power & 1)
-    {
-      modulo = (int)(modulo * 1ll * g % P);
-      power--;
-    }
-    else
-    {
-      g = (int)(g * 1ll * g % P);
-      power >>= 1;
-    }
+    str.erase(0, 1);
   }
-  return modulo;
-}
-
-string get1024BitsStringNumber()
-{
-  string number = "1";
-  const int charBytesLength = sizeof(char) * 8;
-  const int numbersCount = 1024 / charBytesLength;
-  for (int i = 1; i < numbersCount; i++)
-  {
-    number += to_string(rand() % 10);
-  }
-  return number;
+  return str;
 }
 
 string multiplyLargeNumbers(string a, string b)
 {
+  while (a.length() != b.length())
+  {
+    if (a.length() > b.length())
+    {
+      b = "0" + b;
+    }
+    else
+    {
+      a = "0" + a;
+    }
+  }
   const int firstLength = a.length();
   const int secondLength = b.length();
 
@@ -67,13 +56,13 @@ string multiplyLargeNumbers(string a, string b)
       res[i + j] += bNumber[i] * aNumber[j];
     }
   }
-  for (i = 0; i < firstLength + secondLength; i++)
+  for (i = 0; i < firstLength + secondLength - 1; i++)
   {
     tmp = res[i] / 10;
     res[i] = res[i] % 10;
     res[i + 1] = res[i + 1] + tmp;
   }
-  for (i = firstLength + secondLength; i >= 0; i--)
+  for (i = firstLength + secondLength - 1; i >= 0; i--)
   {
     if (res[i] > 0)
       break;
@@ -89,7 +78,7 @@ string multiplyLargeNumbers(string a, string b)
   delete bNumber;
   delete res;
 
-  return resString;
+  return removeLeadingZeros(resString);
 }
 
 string minusOne(string number)
@@ -121,15 +110,6 @@ string minusOne(string number)
   {
     return number;
   }
-}
-
-string removeLeadingZeros(string str)
-{
-  while (str.size() > 1 && str[0] == '0')
-  {
-    str.erase(0, 1);
-  }
-  return str;
 }
 
 bool gt(string a, string b)
@@ -169,9 +149,9 @@ void reduceDividend(string &a, const string &b)
         }
       }
     }
-    removeLeadingZeros(a);
+    a = removeLeadingZeros(a);
   }
-  removeLeadingZeros(a);
+  a = removeLeadingZeros(a);
 }
 
 string incrementNumber(string number)
@@ -241,8 +221,101 @@ string sumLargeNumbers(string a, string b)
     n += a[i] - '0' + b[i] - '0';
     res = to_string(n % 10) + res;
   }
-  cout << "sum: " << res << endl;
   return res;
+}
+
+string subtractLargeNumbers(string a, string b)
+{
+  while (a.length() != b.length())
+  {
+    if (a.length() > b.length())
+    {
+      b = "0" + b;
+    }
+    else
+    {
+      a = "0" + a;
+    }
+  }
+  const int length = a.length();
+  string res = "";
+  int aGTb = a.compare(b);
+  string first;
+  string second;
+  if (aGTb >= 0)
+  {
+    first = a;
+    second = b;
+  }
+  else
+  {
+    first = b;
+    second = a;
+  }
+  for (int i = 0; i < length; i++)
+  {
+    res += '0';
+  }
+  for (int i = length - 1; i >= 0; i--)
+  {
+    if (first[i] >= second[i])
+    {
+      res.replace(i, 1, to_string(first[i] - '0' - (second[i] - '0')));
+    }
+    else
+    {
+      res.replace(i, 1, to_string((first[i] - '0' + 10 - (second[i] - '0')) % 10));
+      int j = i - 1;
+      while (j >= 0)
+      {
+        if (first[j] == '0')
+        {
+          first[j] = '9';
+          j--;
+        }
+        else
+        {
+          first.replace(j, 1, to_string(first[j] - '0' - 1));
+          break;
+        }
+      }
+    }
+  }
+  return removeLeadingZeros(res);
+}
+
+string getRemainder(string a, string b)
+{
+  return subtractLargeNumbers(a, multiplyLargeNumbers(divideLargeNumbers(a, b), b));
+}
+
+int what = 0;
+
+string gcd(string a, string b)
+{
+  if (b.length() == 1 && b[0] == '0')
+  {
+    return a;
+  }
+  else
+  {
+    return gcd(b, getRemainder(a, b));
+  }
+}
+
+string findSecretKey(string d, string e, string fi)
+{
+  const string remainderString = getRemainder(multiplyLargeNumbers(d, e), fi);
+  cout << "d: " << d << endl;
+  cout << "remainder: " << remainderString << endl;
+  if (remainderString.compare("1") == 0)
+  {
+    return d;
+  }
+  else
+  {
+    return findSecretKey(incrementNumber(d), e, fi);
+  }
 }
 
 int main(int argc, char **argv)
@@ -287,7 +360,19 @@ int main(int argc, char **argv)
   cout << "fi: " << fi << endl;
 
   cout << "(q - 1)/(p - 1): " << divideLargeNumbers(qMinus1, pMinus1) << endl;
-  sumLargeNumbers(p, q);
+  cout << "p + q: " << sumLargeNumbers(p, q) << endl;
+  cout << "p - q: " << subtractLargeNumbers(p, q) << endl;
+  cout << "p % q: " << getRemainder(p, q) << endl;
+  cout << "gcd(p, q): " << gcd(p, q) << endl;
+
+  const string e = "65537";
+  cout << gcd(e, fi) << endl;
+  // cout << "(de) % (fi) = 1; d: " << findSecretKey(e, e, fi) << endl;
+
+  // string a = "18019379453373458444473938255821519415860896160175271898616644854342178655725609303514838857767337414746496084828578544086678843109761347554414391841885654787165466472144563929434610713147330518440095967945880088811907248445709689449823084416070559277857449607156883051";
+  // string b = "6344446979169448949342704709205734680991541641117411237092322663644096081362842573584347913658442794126323324965896925597522862683405495378675150401948599712933118041312610886713884132695916502522978885013982495647849810647265702355139768384469685367976408225840812176";
+  // cout << multiplyLargeNumbers(divideLargeNumbers(a, b), b) << endl;
+  // cout << gcd(a, b) << endl;
 
   return 0;
 }
