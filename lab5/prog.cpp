@@ -78,7 +78,15 @@ string multiplyLargeNumbers(string a, string b)
   delete bNumber;
   delete res;
 
-  return removeLeadingZeros(resString);
+  string resNum = removeLeadingZeros(resString);
+  if (resNum.length() == 0)
+  {
+    return "0";
+  }
+  else
+  {
+    return resNum;
+  }
 }
 
 string minusOne(string number)
@@ -214,14 +222,16 @@ string sumLargeNumbers(string a, string b)
       a = "0" + a;
     }
   }
-  int finalLength = max(a.length(), b.length());
+  a = "0" + a;
+  b = "0" + b;
+  int finalLength = a.length();
   string res = "";
   for (int n = 0, i = finalLength - 1; i >= 0; i--, n /= 10)
   {
     n += a[i] - '0' + b[i] - '0';
     res = to_string(n % 10) + res;
   }
-  return res;
+  return removeLeadingZeros(res);
 }
 
 string subtractLargeNumbers(string a, string b)
@@ -291,31 +301,44 @@ string getRemainder(string a, string b)
 
 int what = 0;
 
-string gcd(string a, string b)
+string gcdExt(string a, string b, string &x, string &y, bool &prevXWasMinus, bool &prevYWasMinus)
 {
-  if (b.length() == 1 && b[0] == '0')
+  if (a.length() == 1 && a[0] == '0')
   {
-    return a;
+    x = '0';
+    y = '1';
+    return b;
+  }
+  string x1;
+  string y1;
+  string d = gcdExt(getRemainder(b, a), a, x1, y1, prevXWasMinus, prevYWasMinus);
+  const string multiplied = multiplyLargeNumbers(divideLargeNumbers(b, a), x1);
+  if (prevXWasMinus)
+  {
+    x = sumLargeNumbers(y1, multiplied);
+    prevXWasMinus = false;
+    prevYWasMinus = true;
+  }
+  else if (prevYWasMinus)
+  {
+    x = sumLargeNumbers(y1, multiplied);
+    prevXWasMinus = true;
+    prevYWasMinus = false;
   }
   else
   {
-    return gcd(b, getRemainder(a, b));
+    x = subtractLargeNumbers(y1, multiplied);
+    if (y1.compare(multiplied) >= 0)
+    {
+      prevXWasMinus = false;
+    }
+    else
+    {
+      prevXWasMinus = true;
+    }
   }
-}
-
-string findSecretKey(string d, string e, string fi)
-{
-  const string remainderString = getRemainder(multiplyLargeNumbers(d, e), fi);
-  cout << "d: " << d << endl;
-  cout << "remainder: " << remainderString << endl;
-  if (remainderString.compare("1") == 0)
-  {
-    return d;
-  }
-  else
-  {
-    return findSecretKey(incrementNumber(d), e, fi);
-  }
+  y = x1;
+  return d;
 }
 
 int main(int argc, char **argv)
@@ -335,44 +358,56 @@ int main(int argc, char **argv)
 
   string p;
   string q;
-  ifstream sourceFile;
-  sourceFile.open(fileName1);
-  getline(sourceFile, p);
-  sourceFile.close();
-  sourceFile.open(fileName2);
-  getline(sourceFile, q);
-  sourceFile.close();
-
-  // - 1
-
-  cout << "p(" << p.length() << "): " << p << endl;
-  cout << "q(" << q.length() << "): " << q << endl;
+  ifstream readFileHandle;
+  readFileHandle.open(fileName1);
+  getline(readFileHandle, p);
+  readFileHandle.close();
+  readFileHandle.open(fileName2);
+  getline(readFileHandle, q);
+  readFileHandle.close();
 
   const string n = multiplyLargeNumbers(p, q);
-  cout << "n: " << n << endl;
 
   const string pMinus1 = minusOne(p);
-  cout << "p - 1: " << pMinus1 << endl;
   const string qMinus1 = minusOne(q);
-  cout << "q - 1: " << qMinus1 << endl;
 
-  const string fi = multiplyLargeNumbers(pMinus1, qMinus1);
-  cout << "fi: " << fi << endl;
+  string fi = multiplyLargeNumbers(pMinus1, qMinus1);
 
-  cout << "(q - 1)/(p - 1): " << divideLargeNumbers(qMinus1, pMinus1) << endl;
-  cout << "p + q: " << sumLargeNumbers(p, q) << endl;
-  cout << "p - q: " << subtractLargeNumbers(p, q) << endl;
-  cout << "p % q: " << getRemainder(p, q) << endl;
-  cout << "gcd(p, q): " << gcd(p, q) << endl;
+  string e = "65537";
+  string d = "0";
+  string dummy = "1";
+  bool dummyXBool = false;
+  bool dummyYBool = false;
 
-  const string e = "65537";
-  cout << gcd(e, fi) << endl;
-  // cout << "(de) % (fi) = 1; d: " << findSecretKey(e, e, fi) << endl;
+  const string commonRem = gcdExt(e, fi, d, dummy, dummyXBool, dummyYBool);
+  if (dummyXBool) // fi - d if "d" is negative
+  {
+    d = subtractLargeNumbers(fi, d);
+  }
 
-  // string a = "18019379453373458444473938255821519415860896160175271898616644854342178655725609303514838857767337414746496084828578544086678843109761347554414391841885654787165466472144563929434610713147330518440095967945880088811907248445709689449823084416070559277857449607156883051";
-  // string b = "6344446979169448949342704709205734680991541641117411237092322663644096081362842573584347913658442794126323324965896925597522862683405495378675150401948599712933118041312610886713884132695916502522978885013982495647849810647265702355139768384469685367976408225840812176";
-  // cout << multiplyLargeNumbers(divideLargeNumbers(a, b), b) << endl;
-  // cout << gcd(a, b) << endl;
+  // cout << "p(" << p.length() << "): " << p << endl;
+  // cout << "q(" << q.length() << "): " << q << endl;
+  // cout << "n: " << n << endl;
+  // cout << "p - 1: " << pMinus1 << endl;
+  // cout << "q - 1: " << qMinus1 << endl;
+  // cout << "fi: " << fi << endl;
+  // cout << "(q - 1)/(p - 1): " << divideLargeNumbers(qMinus1, pMinus1) << endl;
+  // cout << "p + q: " << sumLargeNumbers(p, q) << endl;
+  // cout << "p - q: " << subtractLargeNumbers(p, q) << endl;
+  // cout << "p % q: " << getRemainder(p, q) << endl;
+  // cout << "d: " << d << endl;
+  // cout << "common remainder: " << commonRem << endl;
+  // cout << "calculated remainder: " << getRemainder(multiplyLargeNumbers(d, e), fi) << endl;
+
+  ofstream writeFileHandle;
+  writeFileHandle.open("public_key.txt");
+  writeFileHandle << e << endl
+                  << n;
+  writeFileHandle.close();
+  writeFileHandle.open("private_key.txt");
+  writeFileHandle << d << endl
+                  << n;
+  writeFileHandle.close();
 
   return 0;
 }
