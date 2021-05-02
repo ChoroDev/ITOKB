@@ -341,6 +341,39 @@ string gcdExt(string a, string b, string &x, string &y, bool &prevXWasMinus, boo
   return d;
 }
 
+const string decToBinStr(string sourceDec)
+{
+  string resBin;
+  for (int i = 0; sourceDec.length() > 1 || sourceDec[0] != '0'; i++)
+  {
+    cout << sourceDec << endl;
+    resBin = getRemainder(to_string(sourceDec[sourceDec.length() - 1] - '0'), "2") + resBin;
+    sourceDec = divideLargeNumbers(sourceDec, "2");
+  }
+  return resBin;
+}
+
+const string encryptDecrypt(string m, string power, string n)
+{
+  string modulo = "1";
+  string binPower = decToBinStr(power);
+  while (binPower.length() > 0)
+  {
+    cout << binPower << endl;
+    if (binPower[binPower.length() - 1] == '1')
+    {
+      modulo = getRemainder(multiplyLargeNumbers(modulo, m), n);
+      binPower.replace(binPower.length() - 1, 1, "0");
+    }
+    else
+    {
+      m = getRemainder(multiplyLargeNumbers(m, m), n);
+      binPower.erase(binPower.length() - 1, 1);
+    }
+  }
+  return modulo;
+}
+
 int main(int argc, char **argv)
 {
   setlocale(LC_ALL, "");
@@ -408,6 +441,13 @@ int main(int argc, char **argv)
   writeFileHandle << d << endl
                   << n;
   writeFileHandle.close();
+
+  readFileHandle.open("to_encrypt.txt");
+  string readStr;
+  string encrypted;
+  getline(readFileHandle, readStr);
+  encrypted = encryptDecrypt(readStr, d, n);
+  cout << "Encrypted: " << encrypted << endl;
 
   return 0;
 }
