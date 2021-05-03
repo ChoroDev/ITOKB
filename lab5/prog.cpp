@@ -357,7 +357,7 @@ const string encryptDecrypt(string m, string power, string n)
 {
   string modulo = "1";
   string binPower = decToBinStr(power);
-  while (binPower.length() > 0)
+  while (binPower.length() > 1 || binPower[0] != '0')
   {
     cout << binPower << endl;
     if (binPower[binPower.length() - 1] == '1')
@@ -399,7 +399,10 @@ int main(int argc, char **argv)
   getline(readFileHandle, q);
   readFileHandle.close();
 
-  const string n = multiplyLargeNumbers(p, q);
+  p = "1246";
+  q = "3547";
+
+  string n = multiplyLargeNumbers(p, q);
 
   const string pMinus1 = minusOne(p);
   const string qMinus1 = minusOne(q);
@@ -417,6 +420,13 @@ int main(int argc, char **argv)
   {
     d = subtractLargeNumbers(fi, d);
   }
+
+  string encr = encryptDecrypt("4359259", e, n);
+  cout << "Encrypted: " << encr << endl;
+  string decr = encryptDecrypt(encr, d, n);
+  cout << "Decrypted: " << decr << endl;
+
+  return 0;
 
   // cout << "p(" << p.length() << "): " << p << endl;
   // cout << "q(" << q.length() << "): " << q << endl;
@@ -444,10 +454,19 @@ int main(int argc, char **argv)
 
   readFileHandle.open("to_encrypt.txt");
   string readStr;
-  string encrypted;
   getline(readFileHandle, readStr);
-  encrypted = encryptDecrypt(readStr, d, n);
+
+  string encrypted = encryptDecrypt(readStr, e, n);
   cout << "Encrypted: " << encrypted << endl;
+  writeFileHandle.open("encrypted.txt");
+  writeFileHandle << encrypted << endl;
+  writeFileHandle.close();
+
+  string decrypted = encryptDecrypt(encrypted, d, n);
+  cout << "Decrypted: " << decrypted << endl;
+  writeFileHandle.open("decrypted.txt");
+  writeFileHandle << decrypted << endl;
+  writeFileHandle.close();
 
   return 0;
 }
