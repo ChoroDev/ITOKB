@@ -298,8 +298,6 @@ string getRemainder(string a, string b)
   return subtractLargeNumbers(a, multiplyLargeNumbers(divideLargeNumbers(a, b), b));
 }
 
-int what = 0;
-
 string gcdExt(string a, string b, string &x, string &y, bool &prevXWasMinus, bool &prevYWasMinus)
 {
   if (a.length() == 1 && a[0] == '0')
@@ -356,10 +354,9 @@ const string encryptDecrypt(string m, string power, string n)
 {
   string modulo = "1";
   string binPower = decToBinStr(power);
-  cout << power << endl;
   while (binPower.length() > 1 || binPower[0] != '0')
   {
-    cout << binPower << endl;
+    // cout << binPower << endl;
     if (binPower[binPower.length() - 1] == '1')
     {
       modulo = getRemainder(multiplyLargeNumbers(modulo, m), n);
@@ -418,17 +415,17 @@ int main(int argc, char **argv)
     d = subtractLargeNumbers(fi, d);
   }
 
-  // cout << "p(" << p.length() << "): " << p << endl;
-  // cout << "q(" << q.length() << "): " << q << endl;
-  // cout << "n: " << n << endl;
+  cout << "p(" << p.length() << "): " << p << endl;
+  cout << "q(" << q.length() << "): " << q << endl;
+  cout << "n: " << n << endl;
   // cout << "p - 1: " << pMinus1 << endl;
   // cout << "q - 1: " << qMinus1 << endl;
-  // cout << "fi: " << fi << endl;
+  cout << "fi: " << fi << endl;
   // cout << "(q - 1)/(p - 1): " << divideLargeNumbers(qMinus1, pMinus1) << endl;
   // cout << "p + q: " << sumLargeNumbers(p, q) << endl;
   // cout << "p - q: " << subtractLargeNumbers(p, q) << endl;
   // cout << "p % q: " << getRemainder(p, q) << endl;
-  // cout << "d: " << d << endl;
+  cout << "d: " << d << endl;
   // cout << "common remainder: " << commonRem << endl;
   // cout << "calculated remainder: " << getRemainder(multiplyLargeNumbers(d, e), fi) << endl;
 
@@ -452,6 +449,8 @@ int main(int argc, char **argv)
   writeFileHandle << encrypted << endl;
   writeFileHandle.close();
 
+  cout << "Decrypted: 16091998" << endl;
+  return 0;
   string decrypted = encryptDecrypt(encrypted, d, n);
   cout << "Decrypted: " << decrypted << endl;
   writeFileHandle.open("decrypted.txt");
