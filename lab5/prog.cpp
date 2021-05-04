@@ -14,79 +14,78 @@ string removeLeadingZeros(string str)
   return str;
 }
 
-string multiplyLargeNumbers(string a, string b)
+string multiplyLargeNumbers(string num1, string num2)
 {
-  while (a.length() != b.length())
-  {
-    if (a.length() > b.length())
-    {
-      b = "0" + b;
-    }
-    else
-    {
-      a = "0" + a;
-    }
-  }
-  const int firstLength = a.length();
-  const int secondLength = b.length();
-
-  int *aNumber = new int[firstLength];
-  int *bNumber = new int[secondLength];
-  int *res = new int[firstLength + secondLength];
-
-  int i, j, tmp;
-  for (i = 0; i < firstLength + secondLength; i++)
-  {
-    res[i] = 0;
-  }
-
-  for (i = firstLength - 1, j = 0; i >= 0; i--, j++)
-  {
-    aNumber[j] = a[i] - '0';
-  }
-  for (i = secondLength - 1, j = 0; i >= 0; i--, j++)
-  {
-    bNumber[j] = b[i] - '0';
-  }
-
-  for (i = 0; i < secondLength; i++)
-  {
-    for (j = 0; j < firstLength; j++)
-    {
-      res[i + j] += bNumber[i] * aNumber[j];
-    }
-  }
-  for (i = 0; i < firstLength + secondLength - 1; i++)
-  {
-    tmp = res[i] / 10;
-    res[i] = res[i] % 10;
-    res[i + 1] = res[i + 1] + tmp;
-  }
-  for (i = firstLength + secondLength - 1; i >= 0; i--)
-  {
-    if (res[i] > 0)
-      break;
-  }
-  const int newLength = i;
-  string resString = "";
-  for (i = newLength; i >= 0; i--)
-  {
-    resString += to_string(res[i]);
-  }
-
-  delete aNumber;
-  delete bNumber;
-  delete res;
-
-  string resNum = removeLeadingZeros(resString);
-  if (resNum.length() == 0)
-  {
+  int len1 = num1.size();
+  int len2 = num2.size();
+  if (len1 == 0 || len2 == 0)
     return "0";
-  }
-  else
+
+  // will keep the result number in vector
+  // in reverse order
+  vector<int> result(len1 + len2, 0);
+
+  // Below two indexes are used to find positions
+  // in result.
+  int i_n1 = 0;
+  int i_n2 = 0;
+
+  // Go from right to left in num1
+  for (int i = len1 - 1; i >= 0; i--)
   {
-    return resNum;
+    int carry = 0;
+    int n1 = num1[i] - '0';
+
+    // To shift position to left after every
+    // multiplication of a digit in num2
+    i_n2 = 0;
+
+    // Go from right to left in num2
+    for (int j = len2 - 1; j >= 0; j--)
+    {
+      // Take current digit of second number
+      int n2 = num2[j] - '0';
+
+      // Multiply with current digit of first number
+      // and add result to previously stored result
+      // at current position.
+      int sum = n1 * n2 + result[i_n1 + i_n2] + carry;
+
+      // Carry for next iteration
+      carry = sum / 10;
+
+      // Store result
+      result[i_n1 + i_n2] = sum % 10;
+
+      i_n2++;
+    }
+
+    // store carry in next cell
+    if (carry > 0)
+      result[i_n1 + i_n2] += carry;
+
+    // To shift position to left after every
+    // multiplication of a digit in num1.
+    i_n1++;
   }
+
+  // ignore '0's from the right
+  int i = result.size() - 1;
+  while (i >= 0 && result[i] == 0)
+    i--;
+
+  // If all were '0's - means either both or
+  // one of num1 or num2 were '0'
+  if (i == -1)
+    return "0";
+
+  // generate the result string
+  string s = "";
+
+  while (i >= 0)
+    s += to_string(result[i--]);
+
+  return s;
 }
 
 string minusOne(string number)
@@ -346,7 +345,7 @@ const string decToBinStr(string sourceDec)
   string resBin;
   for (int i = 0; sourceDec.length() > 1 || sourceDec[0] != '0'; i++)
   {
-    cout << sourceDec << endl;
+    // cout << sourceDec << endl;
     resBin = getRemainder(to_string(sourceDec[sourceDec.length() - 1] - '0'), "2") + resBin;
     sourceDec = divideLargeNumbers(sourceDec, "2");
   }
@@ -357,6 +356,7 @@ const string encryptDecrypt(string m, string power, string n)
 {
   string modulo = "1";
   string binPower = decToBinStr(power);
+  cout << power << endl;
   while (binPower.length() > 1 || binPower[0] != '0')
   {
     cout << binPower << endl;
@@ -379,7 +379,7 @@ int main(int argc, char **argv)
   setlocale(LC_ALL, "");
   srand(time(NULL));
 
-  string fileNames[10] = {"rsa309.txt", "rsa310.txt", "rsa320.txt", "rsa330.txt", "rsa340.txt", "rsa350.txt", "rsa360.txt", "rsa370.txt", "rsa380.txt", "rsa1024.txt"};
+  string fileNames[10] = {"prime1.txt", "prime2.txt", "prime3.txt", "prime4.txt", "prime5.txt", "prime6.txt", "prime7.txt", "prime8.txt", "prime9.txt", "prime10.txt"};
   const int idx1 = rand() % 10;
   int idx2 = rand() % 10;
   while (idx2 == idx1)
@@ -399,9 +399,6 @@ int main(int argc, char **argv)
   getline(readFileHandle, q);
   readFileHandle.close();
 
-  p = "1246";
-  q = "3547";
-
   string n = multiplyLargeNumbers(p, q);
 
   const string pMinus1 = minusOne(p);
@@ -420,13 +417,6 @@ int main(int argc, char **argv)
   {
     d = subtractLargeNumbers(fi, d);
   }
-
-  string encr = encryptDecrypt("4359259", e, n);
-  cout << "Encrypted: " << encr << endl;
-  string decr = encryptDecrypt(encr, d, n);
-  cout << "Decrypted: " << decr << endl;
-
-  return 0;
 
   // cout << "p(" << p.length() << "): " << p << endl;
   // cout << "q(" << q.length() << "): " << q << endl;
